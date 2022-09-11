@@ -4,13 +4,13 @@ import {wgCmd} from "../wireguard/cmd.js";
 import {WebRouter} from "./router.js";
 
 let api = new WebRouter();
-api.handle("/get/", function (path, request, clientIp) {
+api.handle("/get/", async function (path, request, clientIp) {
 	let segs = path.split("/");
-	let obj = JSON.stringify(wgCmd.show(segs[0]));
-	if (obj) {
+	let obj = JSON.stringify(await wgCmd.show(segs[0]));
+	if (obj.length > 2) {
 		return new Response(obj);
 	} else {
-		return new Response(`Unknown interface "${segs[0]}"`, {status: 400});
+		return new Response(`Unknown interface "${segs[0]}".`, {status: 400});
 	};
 });
 

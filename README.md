@@ -52,12 +52,41 @@ Used to initiate observable pings. Data can either be "SYN" for outgoing message
 #### `peerUpdate` message
 Used to notify edges peer updates.
 ### `GET ${prefix}/networks`
-Gets all of the available interfaces. Registry only.
+Gets all of the available interfaces.
 ```
 ["interface-1", "interface-2", ...]
 ```
 ### `GET ${prefix}/get/<network>/<pubKey>`
 Gets the registry. Will only reply config data if the provided `pubKey` is listed in the registry. Registry only.
+```
+{
+	"ifname": "<network>",
+	"heartbeat": 20, // Global PersistentKeepalive
+	"self": {
+		"type": "self",
+		"pub": "JeZl...",
+		"end": "192.0.2.1:51820",
+		"range": "10.0.0.254/32"
+	},
+	"peer": [{
+		"type": "edge",
+		"pub": "xScV...",
+		"end": "192.0.2.2:10362",
+		"range": "10.0.0.1/32"
+	}, {
+		"type": "edge",
+		"pub": "syKB...",
+		"end": "192.0.2.3:51496",
+		"range": "10.0.0.2/32"
+	}, ...]
+}
+```
+### `POST ${prefix}/update/<peer ID>`
+Send a peer update message to the rest of the network.
+### `GET ${prefix}/detail/<network>/<peer ID>`
+Fetches peer network information to the server.
+### `PUT ${prefix}/detail/<network>/<peer ID>`
+Uploads peer network information to the server.
 ```
 {
 	"ifname": "<network>",
@@ -86,5 +115,3 @@ Gets the registry. Will only reply config data if the provided `pubKey` is liste
 	}, ...]
 }
 ```
-### `POST ${prefix}/update/<peer ID>`
-Send a peer update message to the rest of the network. Registry only.

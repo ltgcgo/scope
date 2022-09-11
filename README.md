@@ -25,6 +25,7 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
 {
 	"listen": "127.0.0.1:8080",
 	"prefix": "",
+	"heartbeat": 20,
 	"serveMode": "whitelist", // or blacklist
 	"networks": [ // acts accordingly with serveMode
 		"interface-1"
@@ -38,13 +39,25 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
 ```
 
 ## API
+### `WS ${prefix}/messages`
+Sends and receives WebSocket messages.
+```
+{
+	"t": "<type>",
+	"d": "<data>"
+}
+```
+#### `ping` message
+Used to initiate observable pings. Data can either be "SYN" for outgoing messages, or "ACK" for incoming messages.
+#### `peerUpdate` message
+Used to notify edges peer updates.
 ### `GET ${prefix}/networks`
-Gets all of the available interfaces.
+Gets all of the available interfaces. Registry only.
 ```
 ["interface-1", "interface-2", ...]
 ```
 ### `GET ${prefix}/get/<network>/<pubKey>`
-Gets the registry. Will only reply config data if the provided `pubKey` is listed in the registry.
+Gets the registry. Will only reply config data if the provided `pubKey` is listed in the registry. Registry only.
 ```
 {
 	"ifname": "<network>",
@@ -58,14 +71,20 @@ Gets the registry. Will only reply config data if the provided `pubKey` is liste
 		"type": "edge",
 		"pub": "xScV...",
 		"end": "192.0.2.2:10362",
-		"range": "10.0.0.1/32"
+		"range": "10.0.0.1/32",
+		"sum": 200, // observable average latency
+		"mode": "direct", // or leastSum
+		"leastSource": "" // public key of the upstream
 	}, {
 		"type": "edge",
 		"pub": "syKB...",
 		"end": "192.0.2.3:51496",
-		"range": "10.0.0.2/32"
+		"range": "10.0.0.2/32",
+		"sum": 200,
+		"mode": "leastSum",
+		"leastSource": "xScV..."
 	}, ...]
 }
 ```
 ### `POST ${prefix}/update/<peer ID>`
-Send a peer update message to the rest of the network.
+Send a peer update message to the rest of the network. Registry only.

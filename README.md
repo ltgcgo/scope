@@ -16,7 +16,7 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
   * `registry.js` - Scope server for serving peer information.
   * `edge.js` - Scope client for automatically managing edge configurations.
   * `browser.js` - Allows debugging directly from the browser.
-1. If the current user can modify WireGuard settings, execute the scripts via `deno run`.
+1. If the current user can modify WireGuard settings, execute the scripts via `deno run --allow-read --allow-net --allow-run`.
 
 ## Configuration Syntax
 `edge.js` and `browser.js` doesn't require any configuration file.

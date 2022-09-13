@@ -23,17 +23,17 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
 ### Registry
 ```
 {
-	"listen": "127.0.0.1:8080",
-	"prefix": "",
-	"heartbeat": 20,
-	"serveMode": "whitelist", // or blacklist
-	"networks": [ // acts accordingly with serveMode
+	"listen": "127.0.0.1",
+	"listenPort": 8080,
+	"networks": [
 		"interface-1"
 	],
 	"self": {
-		"pub": "JeZl...",
-		"end": "192.0.2.1:51820",
-		"range": "10.0.0.254/32"
+		"interface-1": {
+			"heartbeat": 20,
+			"end": "192.0.2.1:51820",
+			"range": "10.0.0.254/32"
+		}
 	}
 }
 ```

@@ -5,6 +5,8 @@ import {WebRouter} from "./router.js";
 
 let badReq;
 
+let objs = {};
+
 let wsPool = [];
 
 let api = new WebRouter();
@@ -73,7 +75,21 @@ api.handle("/get/", async function (path, request) {
 	if (conf.networks.indexOf(segs[0]) < 0) {
 		return new Response(`{"ifname":"${segs[0]}", "error": "noPermission"}`, {status: 403});
 	};
-	let obj = await wgCmd.show(segs[0]);
+	let obj;
+	if (!objs[segs[0]]) {
+		objs[segs[0]] = {
+			time: 0
+		};
+	};
+	if ((Date.now() - objs[segs[0]].time) >= 5000) {
+		obj = await wgCmd.show(segs[0]);
+		objs[segs[0]].obj = obj;
+		objs[segs[0]].time = Date.now();
+		console.debug(`Served fresh content from ${segs[0]}.`);
+	} else {
+		obj = objs[segs[0]].obj;
+		console.debug(`Served cached content from ${segs[0]}.`);
+	};
 	if (conf?.self[segs[0]]) {
 		let selfInfo = conf?.self[segs[0]];
 		if (selfInfo?.end) {

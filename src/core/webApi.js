@@ -8,13 +8,13 @@ let badReq;
 let wsPool = [];
 
 let api = new WebRouter();
-api.handle("/networks", function (path) {
+api.handle("/networks", async function (path) {
 	if (request.method != "GET") {
 		return badReq;
 	};
 	return new Response(conf.networks, {headers: {"Content-Type": "application/json"}});
 });
-api.handle("/messages", function (path, request, clientIp) {
+api.handle("/messages", async function (path, request, clientIp) {
 	if (request.method != "GET") {
 		return badReq;
 	};
@@ -42,12 +42,25 @@ api.handle("/messages", function (path, request, clientIp) {
 	});
 	return response;
 });
-api.handle("/update/", function (path, request) {
+api.handle("/update/", async function (path, request) {
 	if (request.method != "POST") {
 		return badReq;
 	};
+	let segs = path.split("/");
+	let peers = [];
+	(await wgCmd.show(segs[0])).peers.forEach((e) => {
+		peers.push(e.pub);
+	});
+	if (peers.indexOf(segs[0]) < 0) {
+		return new Response(`{"ifname":"${segs[0]}", "error": "noPermission"}`, {status: 403});
+	};
+	let msg = JSON.stringify({t:"peerUpdate",d:segs[0]});
+	wsPool.forEach(async function(e) {
+		e.send(msg);
+	});
+	return new Response(`OK`);
 });
-api.handle("/detail/", function (path, request) {
+api.handle("/detail/", async function (path, request) {
 	if (request.method == "GET") {
 	} else if (request.method == "PUT") {
 	};
@@ -83,7 +96,7 @@ api.handle("/get/", async function (path, request) {
 let handleRequest = async function (request, clientIp) {
 	let url = new URL(request.url);
 	badReq = new Response(`Bad request`, {status: 400});
-	return api.reply(`${url.pathname}${url.search}${url.hash}`, request, clientIp);
+	return await api.reply(`${url.pathname}${url.search}${url.hash}`, request, clientIp);
 };
 
 export {

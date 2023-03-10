@@ -50,7 +50,7 @@ Sends and receives WebSocket messages.
 #### `ping` message
 Used to initiate observable pings. Data can either be "SYN" for outgoing messages, or "ACK" for incoming messages.
 #### `peerUpdate` message
-Used to notify edges peer updates.
+Used to notify the edges about peer updates.
 ### `GET ${prefix}/networks`
 Gets all of the available interfaces.
 ```

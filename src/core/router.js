@@ -3,7 +3,7 @@
 import {BinaryMatch} from "../../libs/lightfelt@ltgcgo/ext/binMatch.js";
 
 let WebRouter = class extends BinaryMatch {
-	reply(prefix, ...args) {
+	async reply(prefix, ...args) {
 		let rawSeq = [], trimStr = "";
 		let errorResp = new Response("API Not Found", {status: 404});
 		Array.from(prefix).forEach(function (e) {
@@ -14,7 +14,7 @@ let WebRouter = class extends BinaryMatch {
 			rawSeq.slice(this.pool[actorIdx].length).forEach(function (e) {
 				trimStr += String.fromCharCode(e);
 			});
-			return this.pool[actorIdx].data(trimStr, ...args) || errorResp;
+			return (await this.pool[actorIdx].data(trimStr, ...args)) || errorResp;
 		} else {
 			return errorResp;
 		};

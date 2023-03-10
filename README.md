@@ -45,7 +45,8 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
 ```json
 [{
 	"registry": "https://example.com/pathPrefix",
-	"network": "interface-1",
+	"network": "local-interface-1",
+	"netreg": "interface-1",
 	"pubKey": "ThisIsAVeryAwesomeWireGuardPublicKey"
 }]
 ```

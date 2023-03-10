@@ -5,6 +5,8 @@ import {WebRouter} from "./router.js";
 
 let badReq;
 
+let wsPool = [];
+
 let api = new WebRouter();
 api.handle("/networks", function (path) {
 	if (request.method != "GET") {
@@ -16,6 +18,26 @@ api.handle("/messages", function (path, request, clientIp) {
 	if (request.method != "GET") {
 		return badReq;
 	};
+	let {socket, response} = Deno.upgradeWebSocket(request);
+	socket.addEventListener("open", () => {
+		wsPool.push(socket);
+	});
+	socket.addEventListener("message", (ev) => {
+		let json = JSON.parse(ev.data);
+		switch (json.t) {
+			case "ping": {
+				socket.send(JSON.stringify({t:"ping",d:"ACK"}));
+				break;
+			};
+			default: {
+				socket.send(JSON.stringify({t:"error",d:"unknownType"}));
+			};
+		};
+	});
+	socket.addEventListener("close", () => {
+		wsPool.splice(wsPool.indexOf(socket), 1);
+	});
+	return response;
 });
 api.handle("/update/", function (path, request) {
 	if (request.method != "POST") {

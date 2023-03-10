@@ -54,6 +54,7 @@ wgCmd.show = async function (network) {
 };
 wgCmd.setPeer = function (network, peerInfo, heartbeat = 30) {
 	let assembledCmd = ["wg", "set", network, "peer", peerInfo.pub, "persistent-keepalive", heartbeat.toString()];
+	let ipRouteCmd;
 	if (peerInfo.end) {
 		assembledCmd.push("endpoint");
 		assembledCmd.push(peerInfo.end);
@@ -61,8 +62,12 @@ wgCmd.setPeer = function (network, peerInfo, heartbeat = 30) {
 	if (peerInfo.range) {
 		assembledCmd.push("allowed-ips");
 		assembledCmd.push(peerInfo.range);
+		if (peerInfo.range.indexOf(":") < 0) {
+			ipRouteCmd = `ip -4 route add ${peerInfo.range} dev ${network}`.split(" ");
+		};
 	};
 	Deno.run({cmd: assembledCmd});
+	Deno.run({cmd: ipRouteCmd});
 };
 wgCmd.delPeer = function (network, pubKey) {
 	Deno.run({cmd: ["wg", "set", network, "peer", pubKey]});

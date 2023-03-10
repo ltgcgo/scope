@@ -14,6 +14,12 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
 
 ⚠️ Despite having been tested in a network with 40-ish peers, Scope isn't yet tested in very large orchestration of mesh networks.
 
+## How does it work?
+1. A registry server is set up on the root WireGuard server.
+2. An edge client connects to the registry server, then requests peer information.
+3. Upon receiving peer information, the edge client tries to connect to the root WireGuard server, and adds all peers as available for connection.
+4. After 10 seconds, the edge client then broadcasts a peer update towards all peers, and waits all other peers to connect.
+
 ## Installation
 1. Install [Deno](https://deno.land).
 2. Download the respective script from either `/dist` or releases.

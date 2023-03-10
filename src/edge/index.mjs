@@ -18,14 +18,36 @@ let startSession = async function (e) {
 		console.debug(`Connected to the registry of ${e.network}.`);
 		// Get all peers
 		let regInfo = await(await fetch(`${e.registry}/get/${e.netreg || e.network}/${e.pubKey}`)).json();
-		console.debug(regInfo);
-		// Connect to all available peers
+		//console.debug(regInfo);
+		// Connect to the root server, and add all peers
+		regInfo.peers.forEach((e0) => {
+			if (e0.pub != e.pubKey) {
+				let target = {
+					pub: e0.pub,
+					range: e0.range
+				};
+				if (!e0.end) {
+					console.debug(`Ignored peer ${e0.pub}.`);
+					return;
+				};
+				if (e0.type == "self") {
+					target.end = e0.end;
+					console.debug(`Connected to root server ${e0.pub}.`);
+				} else {
+					console.debug(`Accepted peer ${e0.pub} for connection.`);
+				};
+				wgCmd.setPeer(e.network, target, regInfo.heartbeat);
+			};
+		});
+		// Send a peer update message
+		setTimeout(() => {
+			fetch(`${e.registry}/update/${e.netreg || e.network}/${e.pubKey}`, {method: "post"});
+			console.debug(`Sent peer update message to the registry of ${e.network}.`);
+		}, 10000);
 	});
+	ws.addEventListener("message", (ev) => {});
 	ws.addEventListener("close", () => {
 		console.debug(`Connection to the registry of ${e.network} closed.`);
-		setTimeout(() => {
-			startSession(e);
-		}, 3000);
 	});
 	e.ws = ws;
 };
@@ -37,6 +59,6 @@ conf.forEach(startSession);
 let beatStr = JSON.stringify({t:"ping",d:"SYN"});
 let heartbeat = setInterval(async function () {
 	conf.forEach((e) => {
-		e.send(beatStr);
+		e.ws.send(beatStr);
 	});
 }, 20000);

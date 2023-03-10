@@ -64,6 +64,8 @@ wgCmd.setPeer = function (network, peerInfo, heartbeat = 30) {
 		assembledCmd.push(peerInfo.range);
 		if (peerInfo.range.indexOf(":") < 0) {
 			ipRouteCmd = `ip -4 route add ${peerInfo.range} dev ${network}`.split(" ");
+		} else {
+			ipRouteCmd = `ip -6 route add ${peerInfo.range} dev ${network}`.split(" ");
 		};
 	};
 	Deno.run({cmd: assembledCmd});

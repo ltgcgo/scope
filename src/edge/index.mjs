@@ -46,23 +46,29 @@ let startSession = async function (e) {
 		}, 10000);
 	});
 	ws.addEventListener("message", async function (ev) {
-		let regInfo = await(await fetch(`${e.registry}/get/${e.netreg || e.network}/${e.pubKey}`)).json();
-		regInfo.peers.forEach((e0) => {
-			if (e0.pub != e.pubKey) {
-				let target = {
-					pub: e0.pub,
-					range: e0.range
-				};
-				if (!e0.end) {
-					console.debug(`Ignored peer ${e0.pub}.`);
-					return;
-				} else if (e0.type != "self" && e0.pub != e.pubKey) {
-					console.debug(`Connected to peer ${e0.pub}`);
-					target.end = e0.end;
-				};
-				wgCmd.setPeer(e.network, target, regInfo.heartbeat);
+		let msg = JSON.parse(ev.data);
+		switch (msg.t) {
+			case "peerUpdate": {
+				let regInfo = await(await fetch(`${e.registry}/get/${e.netreg || e.network}/${e.pubKey}`)).json();
+				regInfo.peers.forEach((e0) => {
+					if (e0.pub != e.pubKey) {
+						let target = {
+							pub: e0.pub,
+							range: e0.range
+						};
+						if (!e0.end || e0.type == "self") {
+							console.debug(`Ignored peer ${e0.pub}.`);
+							return;
+						} else if (e0.pub != e.pubKey) {
+							console.debug(`Connected to peer ${e0.pub}`);
+							target.end = e0.end;
+						};
+						wgCmd.setPeer(e.network, target, regInfo.heartbeat);
+					};
+				});
+				break;
 			};
-		});
+		};
 	});
 	ws.addEventListener("close", () => {
 		console.debug(`Connection to the registry of ${e.network} closed.`);

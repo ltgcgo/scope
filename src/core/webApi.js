@@ -21,6 +21,7 @@ api.handle("/messages", function (path, request, clientIp) {
 	let {socket, response} = Deno.upgradeWebSocket(request);
 	socket.addEventListener("open", () => {
 		wsPool.push(socket);
+		console.info(`New WS connection is up.`);
 	});
 	socket.addEventListener("message", (ev) => {
 		let json = JSON.parse(ev.data);
@@ -33,9 +34,11 @@ api.handle("/messages", function (path, request, clientIp) {
 				socket.send(JSON.stringify({t:"error",d:"unknownType"}));
 			};
 		};
+		console.info(ev.data);
 	});
 	socket.addEventListener("close", () => {
 		wsPool.splice(wsPool.indexOf(socket), 1);
+		console.info(`One WS connection is down.`);
 	});
 	return response;
 });

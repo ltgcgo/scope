@@ -50,12 +50,6 @@ api.handle("/update/", async function (path, request) {
 	};
 	let segs = path.split("/");
 	let peers = [];
-	(await wgCmd.show(segs[0])).peers.forEach((e) => {
-		peers.push(e.pub);
-	});
-	if (peers.indexOf(segs[0]) < 0) {
-		return new Response(`{"ifname":"${segs[0]}", "error": "noPermission"}`, {status: 403});
-	};
 	let msg = JSON.stringify({t:"peerUpdate",d:segs[0]});
 	wsPool.forEach(async function(e) {
 		e.send(msg);

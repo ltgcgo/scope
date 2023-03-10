@@ -84,9 +84,9 @@ Gets the registry. Will only reply config data if the provided `pubKey` is liste
 ### `POST ${prefix}/update/<peer ID>`
 Send a peer update message to the rest of the network.
 ### `GET ${prefix}/detail/<network>/<peer ID>`
-Fetches peer network information to the server.
+Fetches peer network information to the server. Not implemented.
 ### `PUT ${prefix}/detail/<network>/<peer ID>`
-Uploads peer network information to the server.
+Uploads peer network information to the server. Not implemented.
 ```
 {
 	"ifname": "<network>",

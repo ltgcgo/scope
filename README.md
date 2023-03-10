@@ -10,18 +10,22 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
 
 ⚠️ Scope is a Deno program. Node.js support will not be considered.
 
+⚠️ Scope is experimental software. Use at your own risk in production environments.
+
+⚠️ Despite having been tested in a network with 40-ish peers, Scope isn't yet tested in very large orchestration of mesh networks.
+
 ## Installation
 1. Install [Deno](https://deno.land).
-1. Download the respective script from either `/dist` or releases.
+2. Download the respective script from either `/dist` or releases.
   * `registry.js` - Scope server for serving peer information.
   * `edge.js` - Scope client for automatically managing edge configurations.
   * `browser.js` - Allows debugging directly from the browser.
-1. If the current user can modify WireGuard settings, execute the scripts via `deno run --allow-read --allow-net --allow-run`.
+3. If the current user can modify WireGuard settings, execute the scripts via `deno run --allow-read --allow-net --allow-run`.
 
 ## Configuration Syntax
-`edge.js` and `browser.js` doesn't require any configuration file.
+`browser.js` doesn't require any configuration file.
 ### Registry
-```
+```json
 {
 	"listen": "127.0.0.1",
 	"listenPort": 8080,
@@ -37,11 +41,18 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
 	}
 }
 ```
-
+### Edge
+```json
+[{
+	"registry": "https://example.com/pathPrefix",
+	"network": "interface-1",
+	"pubKey": "ThisIsAVeryAwesomeWireGuardPublicKey"
+}]
+```
 ## API
 ### `WS ${prefix}/messages`
 Sends and receives WebSocket messages.
-```
+```json
 {
 	"t": "<type>",
 	"d": "<data>"
@@ -53,12 +64,12 @@ Used to initiate observable pings. Data can either be "SYN" for outgoing message
 Used to notify the edges about peer updates.
 ### `GET ${prefix}/networks`
 Gets all of the available interfaces.
-```
+```json
 ["interface-1", "interface-2", ...]
 ```
 ### `GET ${prefix}/get/<network>/<pubKey>`
 Gets the registry. Will only reply config data if the provided `pubKey` is listed in the registry. Registry only.
-```
+```json
 {
 	"ifname": "<network>",
 	"heartbeat": 20, // Global PersistentKeepalive
@@ -87,7 +98,7 @@ Send a peer update message to the rest of the network.
 Fetches peer network information to the server. Not implemented.
 ### `PUT ${prefix}/detail/<network>/<peer ID>`
 Uploads peer network information to the server. Not implemented.
-```
+```json
 {
 	"ifname": "<network>",
 	"heartbeat": 20, // Global PersistentKeepalive

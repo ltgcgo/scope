@@ -45,7 +45,25 @@ let startSession = async function (e) {
 			console.debug(`Sent peer update message to the registry of ${e.network}.`);
 		}, 10000);
 	});
-	ws.addEventListener("message", (ev) => {});
+	ws.addEventListener("message", async function (ev) {
+		let regInfo = await(await fetch(`${e.registry}/get/${e.netreg || e.network}/${e.pubKey}`)).json();
+		regInfo.peers.forEach((e0) => {
+			if (e0.pub != e.pubKey) {
+				let target = {
+					pub: e0.pub,
+					range: e0.range
+				};
+				if (!e0.end) {
+					console.debug(`Ignored peer ${e0.pub}.`);
+					return;
+				} else if (e0.type != "self" && e0.pub != e.pubKey) {
+					console.debug(`Connected to peer ${e0.pub}`);
+					target.end = e0.end;
+				};
+				wgCmd.setPeer(e.network, target, regInfo.heartbeat);
+			};
+		});
+	});
 	ws.addEventListener("close", () => {
 		console.debug(`Connection to the registry of ${e.network} closed.`);
 	});
@@ -59,6 +77,10 @@ conf.forEach(startSession);
 let beatStr = JSON.stringify({t:"ping",d:"SYN"});
 let heartbeat = setInterval(async function () {
 	conf.forEach((e) => {
-		e.ws.send(beatStr);
+		if (e.ws.readyState == 1) {
+			e.ws.send(beatStr);
+		} else {
+			console.debug(`Network registry ${e.network} not ready.`);
+		};
 	});
 }, 20000);

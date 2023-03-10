@@ -19,6 +19,7 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
 2. An edge client connects to the registry server, then requests peer information.
 3. Upon receiving peer information, the edge client tries to connect to the root WireGuard server, and adds all peers as available for connection.
 4. After 10 seconds, the edge client then broadcasts a peer update towards all peers, and waits all other peers to connect.
+5. When the edge receives a peer update, it'll try to connect to said peer.
 
 ## Installation
 1. Install [Deno](https://deno.land).
@@ -26,7 +27,8 @@ The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://w
   * `registry.js` - Scope server for serving peer information.
   * `edge.js` - Scope client for automatically managing edge configurations.
   * `browser.js` - Allows debugging directly from the browser.
-3. If the current user can modify WireGuard settings, execute the scripts via `deno run --allow-read --allow-net --allow-run`.
+3. Configure the root server and the edge clients respectively. See `/examples` for examples.
+4. If the current user can modify WireGuard settings, execute the scripts via `deno run --allow-read --allow-net --allow-run`.
 
 ## Configuration Syntax
 `browser.js` doesn't require any configuration file.

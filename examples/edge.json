@@ -1,0 +1,5 @@
+[{
+	"registry": "https://scope.example.com/registry",
+	"network": "meshnet0",
+	"pubKey": "pasteYourEdgePublicKeyHere"
+}]

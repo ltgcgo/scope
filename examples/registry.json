@@ -1,0 +1,14 @@
+{
+	"listen": "127.0.0.1",
+	"listenPort": 14514,
+	"heartbeat": 25,
+	"networks": [
+		"meshnet0"
+	],
+	"self": {
+		"meshnet0": {
+			"end": "wireguard.example.com:19810",
+			"range": "10.0.0.1/32"
+		}
+	}
+}

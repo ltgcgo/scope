@@ -86,7 +86,8 @@ let heartbeat = setInterval(async function () {
 		if (e.ws.readyState == 1) {
 			e.ws.send(beatStr);
 		} else {
-			console.debug(`Network registry ${e.network} not ready.`);
+			console.debug(`Network registry ${e.network} not ready. Restarting...`);
+			startSession(e);
 		};
 	});
 }, 20000);

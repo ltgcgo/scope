@@ -4,12 +4,16 @@
 > - The current README.md is written for the fully functioning product, thus does not reflect the current progress of the project. Read [`ROADMAP.md`](./ROADMAP.md) for the current state of the project.
 > - Scope is currently experimental. Despite being tested in real environments, use at your own risk in production.
 
-**Scope** is an overlay network orchestration utility for WireGuard, designed to be a more capable version of the poorly-maintained [`wgsd`](https://github.com/jwhited/wgsd). Unlike to similar solutions like Headscale, the central registry being the source of truth is only informative, providing the peers information regarding endpoints and capabilities, and it's up to the peers to decide the final connectivity topology. It's flexible, decentralized yet explicit design makes it attractive to people who want direct control of the overall networking topology over an unpredictable network.
+**Scope** is an overlay network orchestration utility for WireGuard, designed to be a more capable version of the poorly-maintained [`wgsd`](https://github.com/jwhited/wgsd). Unlike to similar solutions like Headscale, the central registry being the source of truth is only informative, providing the peers information regarding endpoints and capabilities, and it's up to the peers to decide the final connectivity topology.
+
+When constrained to specific environments, Scope is easily configured without much need for understanding of the network, however any advanced setup will require network knowledge. It's flexible, partially-decentralized yet explicit design makes it attractive to people who want control of the overall networking topology over an unpredictable network. When other solutions fail, give Scope a try.
 
 The name "Scope" is a reference to _Scope Lens_ in [_Shifting Melodies_](https://www.fimfiction.net/story/258497/), a changeling with impressive hivemind abilities.
 
 ## Overall design
 ### Use cases
+- Layer post-quantum key deriviation on top, with or without taking control of the network.
+- Manage simple star networks with dynamic peers without constant manual configuration.
 - UDP hole punch if under open UDP NAT (endpoint independent mapping).
 - Build a resilient mesh-like network, preferring direct connections with relay fallbacks.
 - Maintain connectivity with dynamic peer joins, migrations and leaves.
@@ -18,10 +22,11 @@ The name "Scope" is a reference to _Scope Lens_ in [_Shifting Melodies_](https:/
 
 ### Non-goals
 - Full mesh (Headscale): Registry does not decide network topology, only peers themselves do. Network admins decide how their networks should look like.
-- Direct mesh (`wgsd` & Scope 0.0.x): Relayed connectivity is supported alongside direct connectivity and central relay fallback.
+- Direct mesh (`wgsd` & Scope 0.0.x): Relayed connectivity is supported alongside direct connectivity and central relay fallback. It can operate like that however if all peers are relays, as Scope's current operation is its superset.
 - Fully distributed overlay network (Yggdrasil): Routing has no protocol guarantees, it's only determined by local peers.
 - SD-WAN: While capable of acting as an SD-WAN replacement under certain conditions, Scope is never centralized, and does not try to be deterministic or compliant to enterprise standards.
-- Plug-and-Play: Scope expects network admins to have explicit understanding of their own networks.
+- Plug-and-Play: Out of simplified cases (all predictable relays, or all edges with a master relay), Scope expects network admins to have explicit understanding of their own networks.
+- Censorship circumvention: Scope only orchestrate networks, it doesn't try to defeat traffic analysis.
 
 ### Levels
 - Registry: The single source of truth. Only informative for peer discovery, updates, ephemeral key exchanges and latency listing. Does not directly control the network, but it can sit behind reverse proxies.
@@ -41,7 +46,7 @@ When a peer tries to join the network, it will contact the registry first to fet
 | Relaying       | Emergent  | All     | Coordinated | Gateway    | Manual    |
 | Multi-hop      | Relays    | Peers     | Optional  | Policy     | None      |
 | Abstraction    | Medium    | High      | High      | High       | Low       |
-| Failure model  | Local     | Self-heal | Control   | Control    | Manual    |
+| Recovery       | Local     | Self-heal | Control   | Control    | Manual    |
 | Predictability | Medium    | High      | High      | High       | High      |
 | Observability  | Distributed | Distributed | Central | Central  | None      |
 | Proxy fallback | WireProxy | YggStack  | gVisor    | Unknown    | None      |

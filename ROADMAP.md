@@ -1,0 +1,46 @@
+- [ ] Baseline
+  - [ ] Defined master relays (`master`, one per subnet)
+  - [ ] Define overall config structure
+  - [ ] Peer config delivery
+  - [ ] Placeholder WebSocket
+- [ ] FVP: Star network (single master relay, all edge leaves)
+  - [ ] Connection (master relay)
+- [ ] Hybrid signatures
+  - [ ] Ed448
+  - [ ] ML-DSA-65
+- [ ] Real-time events
+  - [ ] Join events (edge to master)
+  - [ ] Move events (edge to master)
+  - [ ] Leave events (edge to master)
+  - [ ] Signed public key broadcast (stub)
+    - [ ] Key roll-over duration at one hour
+    - [ ] Each new member reset the delay of the pending public key broadcast to 2 minutes, if the current remaining time is already below 2 minutes
+- [ ] Hybrid ephemeral KEX
+  - [ ] X448 (re-done every time, batched)
+  - [ ] ML-KEM-768 (re-done every time, batched)
+  - [ ] BLAKE3 or SHA3-256 (HKDF)
+- [ ] Meshed relays
+  - [ ] Connection (relay)
+  - [ ] Join events (relay, causes direct connection attempts, punches open UDP NAT)
+  - [ ] Move events (relay, causes direct migration attempts, punches open UDP NAT)
+  - [ ] Leave events (relay, causes peer removal)
+  - [ ] Authenticate peer info to one of the allowed hybrid signatures
+- [ ] Path broadcast & selection
+  - [ ] Out-of-tunnel latency probing
+  - [ ] Out-of-tunnel latency publishing (3 best)
+  - [ ] Least latency with failover for relays
+    - [ ] Additional mode allowing relayed relays, whenever the combined latency is lower than direct connections
+  - [ ] In-tunnel latency probing
+    - [ ] Trigger reconnection when in-tunnel latency is higher than desired, or in-tunnel connectivity is lost
+  - [ ] Least latency with failover for edges
+    - [ ] Add total uptime of peers into consideration
+    - [ ] Reconnection when in-tunnel connectivity is lost
+- [ ] Better edge, direct connections preferred
+  - [ ] If with no (master) relay, STUN initialization before launch (`nat`: `open`, `deny`, `closed`)
+  - [ ] Junk packets to edges behind open NAT (punches open UDP NAT)
+  - [ ] TUN availability detection
+  - [ ] WireProxy config generation (may require restarts for peer updates)
+- [ ] Product maturity (drop "experimental" tag)
+  - [ ] Interactive initial config wizards (`scopectl init`)
+  - [ ] Config dry run for validation (`scopectl check`)
+  - [ ] Extensive reliability testing

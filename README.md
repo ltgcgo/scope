@@ -4,9 +4,9 @@
 > - The current README.md is written for the fully functioning product, thus does not reflect the current progress of the project. Read [`ROADMAP.md`](./ROADMAP.md) for the current state of the project.
 > - Scope is currently experimental. Despite being tested in real environments, use at your own risk in production.
 
-**Scope** is an overlay network orchestration utility for WireGuard, designed to be a more capable version of the poorly-maintained [`wgsd`](https://github.com/jwhited/wgsd). Unlike to similar solutions like Headscale, the central registry being the source of truth is only informative, providing the peers information regarding endpoints and capabilities, and it's up to the peers to decide the final connectivity topology.
+**Scope** is an overlay network orchestration utility for WireGuard, designed to be a more capable version of the poorly-maintained [`wgsd`](https://github.com/jwhited/wgsd), catering both simple and complex use cases. Unlike to similar solutions like Headscale, the central registry being the source of truth is only informative, providing the peers information regarding endpoints and capabilities, and it's up to the peers to decide the final connectivity topology.
 
-When constrained to specific environments, Scope is easily configured without much need for understanding of the network, however any advanced setup will require network knowledge. It's flexible, partially-decentralized yet explicit design makes it attractive to people who want control of the overall networking topology over an unpredictable network. When other solutions fail, give Scope a try.
+When constrained to specific environments, Scope is easily configured without much need for understanding of the network, however more advanced setups will require network knowledge. It's flexible, partially-decentralized yet explicit design makes it attractive to people who want control of the overall networking topology, or simpler multi-site connectivity without SD-WAN, both over an unpredictable network. When other solutions fail, give Scope a try.
 
 The name "Scope" is a reference to _Scope Lens_ in [_Shifting Melodies_](https://www.fimfiction.net/story/258497/), a changeling with impressive hivemind abilities.
 
@@ -22,10 +22,10 @@ The name "Scope" is a reference to _Scope Lens_ in [_Shifting Melodies_](https:/
 
 ### Non-goals
 - Full mesh (Headscale): Registry does not decide network topology, only peers themselves do. Network admins decide how their networks should look like.
-- Direct mesh (`wgsd` & Scope 0.0.x): Relayed connectivity is supported alongside direct connectivity and central relay fallback. It can operate like that however if all peers are relays, as Scope's current operation is its superset.
+- Simple direct mesh (`wgsd` & Scope 0.0.x): It is a supported use case if all peers are relays, just that relayed connectivity is supported alongside direct connectivity and central relay fallback, marking Scope as a superset of simple direct meshes.
 - Fully distributed overlay network (Yggdrasil): Routing has no protocol guarantees, it's only determined by local peers.
 - SD-WAN: While capable of acting as an SD-WAN replacement under certain conditions, Scope is never centralized, and does not try to be deterministic or compliant to enterprise standards.
-- Plug-and-Play: Out of simplified cases (all predictable relays, or all edges with a master relay), Scope expects network admins to have explicit understanding of their own networks.
+- Plug-and-Play anywhere: Out of simplified cases (all predictable relays, or all edges with a master relay), Scope expects network admins to have explicit understanding of their own networks.
 - Censorship circumvention: Scope only orchestrate networks, it doesn't try to defeat traffic analysis.
 
 ### Levels

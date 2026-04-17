@@ -1,137 +1,47 @@
-# Scope
+# Scope: The Fabric Weaver
+> **Warning**
+> 
+> - The current README.md is written for the fully functioning product, thus does not reflect the current progress of the project. Read [`ROADMAP.md`](./ROADMAP.md) for the current state of the project.
+> - Scope is currently experimental. Despite being tested in real environments, use at your own risk in production.
 
-**Scope** is an easy-to-setup WireGuard meshing utility that serves WireGuard peer information via WebSockets (for connectivity checking) and web APIs, inspired by the now poorly-maintained [`wgsd`](https://github.com/jwhited/wgsd). This allows use cases like:
-* Building a mesh of WireGuard peers from a central registry
-* Dynamic discovery of WireGuard endpoints
-* Announce IP changes whenever possible
-* UDP hole punching if under full cone NAT
+**Scope** is an overlay network orchestration utility for WireGuard, designed to be a more capable version of the poorly-maintained [`wgsd`](https://github.com/jwhited/wgsd). Unlike to similar solutions like Headscale, the central registry being the source of truth is only informative, providing the peers information regarding endpoints and capabilities, and it's up to the peers to decide the final connectivity topology. It's flexible, decentralized yet explicit design makes it attractive to people who want direct control of the overall networking topology over an unpredictable network.
 
-The name "Scope" is a reference to _Scope Lens_ in [Shifting Melodies](https://www.fimfiction.net/story/258497/shifting-melodies), a changeling with impressive hivemind abilities.
+The name "Scope" is a reference to _Scope Lens_ in [_Shifting Melodies_](https://www.fimfiction.net/story/258497/), a changeling with impressive hivemind abilities.
 
-⚠️ Scope is a Deno program. Node.js support will not be considered.
+## Overall design
+### Use cases
+- UDP hole punch if under open UDP NAT (endpoint independent mapping).
+- Build a resilient mesh-like network, preferring direct connections with relay fallbacks.
+- Maintain connectivity with dynamic peer joins, migrations and leaves.
+- Connect to various private networks behind NAT (e.g. homelabs, VLAN).
+- Experiment with various network topologies.
 
-⚠️ Scope is experimental software. Use at your own risk in production environments.
+### Non-goals
+- Full mesh (Headscale): Registry does not decide network topology, only peers themselves do. Network admins decide how their networks should look like.
+- Direct mesh (`wgsd` & Scope 0.0.x): Relayed connectivity is supported alongside direct connectivity and central relay fallback.
+- Fully distributed overlay network (Yggdrasil): Routing has no protocol guarantees, it's only determined by local peers.
+- SD-WAN: While capable of acting as an SD-WAN replacement under certain conditions, Scope is never centralized, and does not try to be deterministic or compliant to enterprise standards.
+- Plug-and-Play: Scope expects network admins to have explicit understanding of their own networks.
 
-⚠️ Despite having been tested in a network with 40-ish peers, Scope isn't yet tested in very large orchestration of mesh networks.
+### Levels
+- Registry: The single source of truth. Only informative for peer discovery, updates, ephemeral key exchanges and latency listing. Does not directly control the network, but it can sit behind reverse proxies.
+- Relays: Network nodes having full TUN capabilities, as well as an open UDP NAT. These relays will always attempt direct connections between each other, as well as reporting probed endpoint latencies. One or few of them may be configured as master relay for fallbacks, with their public IP addresses and ports already known.
+- Edges: Do not participate in the overall routing, only try to connect to the closest relay node(s). No requirement on the UDP NAT type, and may have a WireProxy fallback when TUN isn't available. If direct connection to other peers is desired, they may initialize with pre-defined STUN servers when no relays are available.
 
-## How does it work?
-1. A registry server is set up on the root WireGuard server.
-2. An edge client connects to the registry server, then requests peer information.
-3. Upon receiving peer information, the edge client tries to connect to the root WireGuard server, and adds all peers as available for connection.
-4. After 10 seconds, the edge client then broadcasts a peer update towards all peers, and waits all other peers to connect.
-5. When the edge receives a peer update, it'll try to connect to said peer.
+### Workflow
+When a peer tries to join the network, it will contact the registry first to fetch a list of available peers to connect to. If the peer is an edge, it will attempt to try finding a certain amount of relays with least latency and good uptime, which it will connect to, allowing the relays to control its routing. Edge peers may attempt direct connections between each other, however it is not guaranteed. If the peer is a relay, it will probe out-of-tunnel latency with reachable addresses first, then attempt direct connections with the address with the least latency of each peer.
 
-## Installation
-1. Install [Deno](https://deno.land).
-2. Download the respective script from either `/dist` or releases.
-  * `registry.js` - Scope server for serving peer information.
-  * `edge.js` - Scope client for automatically managing edge configurations.
-  * `browser.js` - Allows debugging directly from the browser.
-3. Configure the root server and the edge clients respectively. See `/examples` for examples.
-4. If the current user can modify WireGuard settings, execute the scripts via `deno run --allow-read --allow-net --allow-run`.
-
-## Configuration Syntax
-`browser.js` doesn't require any configuration file.
-### Registry
-```json
-{
-	"listen": "127.0.0.1",
-	"listenPort": 8080,
-	"networks": [
-		"interface-1"
-	],
-	"self": {
-		"interface-1": {
-			"heartbeat": 20,
-			"end": "192.0.2.1:51820",
-			"range": "10.0.0.254/32"
-		}
-	}
-}
-```
-### Edge
-```json
-[{
-	"registry": "https://example.com/pathPrefix",
-	"network": "local-interface-1",
-	"netreg": "interface-1",
-	"pubKey": "ThisIsAVeryAwesomeWireGuardPublicKey"
-}]
-```
-## API
-### `WS ${prefix}/messages`
-Sends and receives WebSocket messages.
-```json
-{
-	"t": "<type>",
-	"d": "<data>"
-}
-```
-#### `ping` message
-Used to initiate observable pings. Data can either be "SYN" for outgoing messages, or "ACK" for incoming messages.
-#### `peerUpdate` message
-Used to notify the edges about peer updates.
-### `GET ${prefix}/networks`
-Gets all of the available interfaces.
-```json
-["interface-1", "interface-2", ...]
-```
-### `GET ${prefix}/get/<network>/<pubKey>`
-Gets the registry. Will only reply config data if the provided `pubKey` is listed in the registry. Registry only.
-```json
-{
-	"ifname": "<network>",
-	"heartbeat": 20, // Global PersistentKeepalive
-	"self": {
-		"type": "self",
-		"pub": "JeZl...",
-		"end": "192.0.2.1:51820",
-		"range": "10.0.0.254/32"
-	},
-	"peer": [{
-		"type": "edge",
-		"pub": "xScV...",
-		"end": "192.0.2.2:10362",
-		"range": "10.0.0.1/32"
-	}, {
-		"type": "edge",
-		"pub": "syKB...",
-		"end": "192.0.2.3:51496",
-		"range": "10.0.0.2/32"
-	}, ...]
-}
-```
-### `POST ${prefix}/update/<peer ID>`
-Send a peer update message to the rest of the network.
-### `GET ${prefix}/detail/<network>/<peer ID>`
-Fetches peer network information to the server. Not implemented.
-### `PUT ${prefix}/detail/<network>/<peer ID>`
-Uploads peer network information to the server. Not implemented.
-```json
-{
-	"ifname": "<network>",
-	"heartbeat": 20, // Global PersistentKeepalive
-	"self": {
-		"pub": "JeZl...",
-		"end": "192.0.2.1:51820",
-		"range": "10.0.0.254/32"
-	},
-	"peer": [{
-		"type": "edge",
-		"pub": "xScV...",
-		"end": "192.0.2.2:10362",
-		"range": "10.0.0.1/32",
-		"sum": 200, // observable average latency
-		"mode": "direct", // or leastSum
-		"leastSource": "" // public key of the upstream
-	}, {
-		"type": "edge",
-		"pub": "syKB...",
-		"end": "192.0.2.3:51496",
-		"range": "10.0.0.2/32",
-		"sum": 200,
-		"mode": "leastSum",
-		"leastSource": "xScV..."
-	}, ...]
-}
-```
+### Full comparison table
+|                | Scope     | Yggdrasil | Headscale | SD-WAN     | `wgsd`    |
+| -------------- | --------- | --------- | --------- | ---------- | --------- |
+| Design         | Locally inferred decentralized overlay | Fully distributed route mesh | Distributed clients with centralized control | Policy-driven centralized overlay | Semi-dynamic P2P tunnels |
+| Authority      | Registry (informative) | DHT | Registry | Policy | Registry |
+| Peer autonomy  | High      | High      | Medium    | Low        | High      |
+| NAT traversal  | Tiered    | N/A       | DERP      | Policy     | Open-only |
+| Relaying       | Emergent  | All     | Coordinated | Gateway    | Manual    |
+| Multi-hop      | Relays    | Peers     | Optional  | Policy     | None      |
+| Abstraction    | Medium    | High      | High      | High       | Low       |
+| Failure model  | Local     | Self-heal | Control   | Control    | Manual    |
+| Predictability | Medium    | High      | High      | High       | High      |
+| Observability  | Distributed | Distributed | Central | Central  | None      |
+| Proxy fallback | WireProxy | YggStack  | gVisor    | Unknown    | None      |

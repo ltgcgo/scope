@@ -13,7 +13,8 @@
   - [ ] Move events (edge to master)
   - [ ] Leave events (edge to master)
   - [ ] Signed public key broadcast (stub)
-    - [ ] Key roll-over duration at one hour
+    - [ ] Versioned key roll-over duration at one hour, with 60 seconds delay for confirmation on exchange completion
+    - [ ] Broadcast key exchange progress every 15 seconds until the effective deadline
     - [ ] Each new member reset the delay of the pending public key broadcast to 2 minutes, if the current remaining time is already below 2 minutes
 - [ ] Hybrid ephemeral KEX
   - [ ] X448 (re-done every time, batched)

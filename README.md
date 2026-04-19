@@ -31,7 +31,7 @@ The name "Scope" is a reference to _Scope Lens_ in [_Shifting Melodies_](https:/
 - Censorship circumvention: Scope only orchestrate networks, it doesn't try to defeat traffic analysis.
 
 ### Levels
-- Registry: The single source of truth. Only informative for peer discovery, updates, ephemeral key exchanges and latency listing. Does not directly control the network, but it can sit behind reverse proxies. Information from registries apart from cryptograhic identities of peers is always trusted.
+- Registry: The single source of truth. Apart from the signed kill switch, it stays advisory for metadata like peer discovery, updates, ephemeral key exchanges and latency listing. Mostly does not directly control the network apart from indirect influencing, and it can sit behind reverse proxies. Information from registries apart from security-related features (e.g. cryptograhic identities of peers, kill switches) is always trusted, so that a compromised registry only allows degrading the network without a key leak.
 - Relays: Must be trusted. Network nodes having full TUN capabilities, as well as an open UDP NAT. These relays will always attempt direct connections between each other, as well as reporting probed endpoint latencies. One or few of them may be configured as master relay for fallbacks, with their public IP addresses and ports already known.
 - Pipes: If a relay does not directly connect to at least `ceil(N/2)` other relays after 2 minutes of joining (reported via successful KEX on both non-PQ and PQ), and does not report 90% reachability with peers reported to registry directly within the last 150 seconds (`1` for through other relays, `2` for through the master relay), registry will mark it as a `pipe` instead of a `relay` until the threshold is reached. Edges try to avoid pipes whenever possible.
 - Edges: Can be untrusted. Do not participate in the overall routing, only letting the connected relay node(s). No requirement on the UDP NAT type, and may have a WireProxy fallback when TUN isn't available. If direct connection to other peers is desired, they may initialize with pre-defined STUN servers when no relays are available. Edges select a primary relay minimizing latency with a reasonable uptime, and largely rely on the connected primary relay for routing. But if the connected primary relay cannot reach certain peers, they will attempt connection to other relays and pipes for those unreachable peers.
@@ -42,7 +42,7 @@ When a peer tries to join the network, it will contact the registry first to fet
 ### Full comparison table
 |                | Scope     | Yggdrasil | Headscale | SD-WAN     | `wgsd`    |
 | -------------- | --------- | --------- | --------- | ---------- | --------- |
-| Design         | Locally inferred decentralized overlay | Fully distributed route mesh | Distributed clients with centralized control | Policy-driven centralized overlay | Semi-dynamic P2P tunnels |
+| Design         | Partially decentralized overlay | Fully distributed route mesh | Distributed clients with centralized control | Policy-driven centralized overlay | Semi-dynamic P2P tunnels |
 | Authority      | Registry (informative) | DHT | Registry | Policy | Registry |
 | Peer autonomy  | High      | High      | Medium    | Low        | High      |
 | NAT traversal  | Tiered    | N/A       | DERP      | Policy     | Open-only |

@@ -5,15 +5,20 @@
   - [ ] Placeholder WebSocket
 - [ ] FVP: Star network (single master relay, all edge leaves)
   - [ ] Connection (master relay)
-  - [ ] In-config kill switch
+  - [ ] In-config kill switch (disconnects the network, persists until the next Scope reboot on peer)
 - [ ] Hybrid signatures
   - [ ] Ed448
   - [ ] ML-DSA-65
+  - [ ] Chains
+  - [ ] Scoped stub signature chain for miscellaneous features
+    - [ ] Automated peer addition to the registry, with the signed public keys for signature provided by newly-joined peers themselves upon join
+      - [ ] If enabled, all peers in the config should also have their public keys of signatures be signed
+    - [ ] Kill switch (signature required)
 - [ ] Real-time events
   - [ ] Join events (edge to master)
   - [ ] Move events (edge to master)
   - [ ] Leave events (edge to master)
-  - [ ] Kill events (emergency kill on the entire network)
+  - [ ] Kill events (emergency kill on the entire network until Scope reboots on peers, signed)
   - [ ] Signed public key broadcast (stub)
     - [ ] Versioned key roll-over duration at one hour, with 60 seconds delay for confirmation on exchange completion
     - [ ] Broadcast key exchange progress every 10 seconds until the effective deadline
@@ -67,4 +72,5 @@
   - [ ] Config dry run for validation (`scopectl check`)
   - [ ] Local state report (`scopectl local`)
   - [ ] Registry info report (`scopectl info`)
+  - [ ] Fallback bootstrapping upon regisry failure (better design postponed yet required)
   - [ ] Extensive reliability testing

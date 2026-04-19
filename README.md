@@ -20,6 +20,8 @@ The name "Scope" is a reference to _Scope Lens_ in [_Shifting Melodies_](https:/
 - Connect to various private networks behind NAT (e.g. homelabs, VLAN).
 - Experiment with various network topologies.
 
+### Goals
+
 ### Non-goals
 - Full mesh (Headscale): Registry does not decide network topology, only peers themselves do. Network admins decide how their networks should look like.
 - Simple direct mesh (`wgsd` & Scope 0.0.x): It is a supported use case if all peers are relays, just that relayed connectivity is supported alongside direct connectivity and central relay fallback, marking Scope as a superset of simple direct meshes.
@@ -29,9 +31,10 @@ The name "Scope" is a reference to _Scope Lens_ in [_Shifting Melodies_](https:/
 - Censorship circumvention: Scope only orchestrate networks, it doesn't try to defeat traffic analysis.
 
 ### Levels
-- Registry: The single source of truth. Only informative for peer discovery, updates, ephemeral key exchanges and latency listing. Does not directly control the network, but it can sit behind reverse proxies.
-- Relays: Network nodes having full TUN capabilities, as well as an open UDP NAT. These relays will always attempt direct connections between each other, as well as reporting probed endpoint latencies. One or few of them may be configured as master relay for fallbacks, with their public IP addresses and ports already known.
-- Edges: Do not participate in the overall routing, only try to connect to the closest relay node(s). No requirement on the UDP NAT type, and may have a WireProxy fallback when TUN isn't available. If direct connection to other peers is desired, they may initialize with pre-defined STUN servers when no relays are available.
+- Registry: The single source of truth. Only informative for peer discovery, updates, ephemeral key exchanges and latency listing. Does not directly control the network, but it can sit behind reverse proxies. Information from registries apart from cryptograhic identities of peers is always trusted.
+- Relays: Network nodes having full TUN capabilities, as well as an open UDP NAT. These relays will always attempt direct connections between each other, as well as reporting probed endpoint latencies. One or few of them may be configured as master relay for fallbacks, with their public IP addresses and ports already known. Relays must be trusted.
+- Edges: Do not participate in the overall routing, only try to connect to the closest relay node(s). No requirement on the UDP NAT type, and may have a WireProxy fallback when TUN isn't available. If direct connection to other peers is desired, they may initialize with pre-defined STUN servers when no relays are available. Edges always rely on relays for routing. Edges can be untrusted.
+- Pipes: If a relay does not directly connect to at least `ceil(N/2)` other relays after 2 minutes of joining (reported via successful KEX on both non-PQ and PQ), and does not report 90% reachability with peers reported to registry directly within the last 150 seconds (`1` for through other relays, `2` for through the master relay), registry will mark it as a `pipe` instead of a `relay` until the threshold is reached. Edges will not connect to pipes.
 
 ### Workflow
 When a peer tries to join the network, it will contact the registry first to fetch a list of available peers to connect to. If the peer is an edge, it will attempt to try finding a certain amount of relays with least latency and good uptime, which it will connect to, allowing the relays to control its routing. Edge peers may attempt direct connections between each other, however it is not guaranteed. If the peer is a relay, it will probe out-of-tunnel latency with reachable addresses first, then attempt direct connections with the address with the least latency of each peer.
@@ -50,3 +53,13 @@ When a peer tries to join the network, it will contact the registry first to fet
 | Predictability | Medium    | High      | High      | High       | High      |
 | Observability  | Distributed | Distributed | Central | Central  | None      |
 | Proxy fallback | WireProxy | YggStack  | gVisor    | Unknown    | None      |
+
+## FAQ
+### How does Scope converge connectivity?
+Edges always rely on relays for routing. Regardless of relays or pipes (denoted relays), they will always attempt direct connections with each other, only failing over to other relays or even the master relay when unavailable. This results in a robust network due to dynamic adaptation.
+
+### How does Scope mitigate problems caused by delayed info?
+Scope employs active health and capability reporting, as well as key versioning for ephemeral key exchanges.
+
+### How does Scope prevent unneeded PQ key encapsulation?
+Scope peers decide on encapsulation/decapsultion based on apparent public key values. If the value is higher, the peer is the decapsulator between the pair.

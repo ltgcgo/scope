@@ -14,18 +14,35 @@
   - [ ] Leave events (edge to master)
   - [ ] Signed public key broadcast (stub)
     - [ ] Versioned key roll-over duration at one hour, with 60 seconds delay for confirmation on exchange completion
-    - [ ] Broadcast key exchange progress every 15 seconds until the effective deadline
-    - [ ] Each new member reset the delay of the pending public key broadcast to 2 minutes, if the current remaining time is already below 2 minutes
+    - [ ] Broadcast key exchange progress every 10 seconds until the effective deadline
+      - [ ] `hasKeyBroadcast`: If a node has broadcasted a public key or not
+      - [ ] `peerKexNPQ`: Non-PQ key exchange state with a connected peer
+        - [ ] `0`: no public key received
+        - [ ] `1`: public key received, local KEX completed
+        - [ ] `2`: KEX completed
+      - [ ] `peerKexPQ`: PQ key exchange state with a connected peer
+        - [ ] `0`: no public key received
+        - [ ] `1`: public key received, remote is the encapsulator
+        - [ ] `2`: public key received, remote is the decapsulator, waiting for confirmation
+        - [ ] `3`: KEX completed
+    - [ ] Each new member reset the delay of the pending public key broadcast to 5 minutes, if the current remaining time is already below 5 minutes
 - [ ] Hybrid ephemeral KEX
-  - [ ] X448 (re-done every time, batched)
-  - [ ] ML-KEM-768 (re-done every time, batched)
+  - [ ] X448 (re-done every time, batched in a single phase)
+    - [ ] Same public key with an existing broadcast entry results in a local reroll
+  - [ ] ML-KEM-768 (re-done every time, batched in two phases)
+    - [ ] Same public key with an existing broadcast entry results in a local reroll
+    - [ ] Peers with a higher public key are selected as decapsulators
   - [ ] BLAKE3 or SHA3-256 (HKDF)
 - [ ] Meshed relays
   - [ ] Connection (relay)
   - [ ] Join events (relay, causes direct connection attempts, punches open UDP NAT)
   - [ ] Move events (relay, causes direct migration attempts, punches open UDP NAT)
   - [ ] Leave events (relay, causes peer removal)
+  - [ ] Tier events (registry marks nodes with tiers)
+  - [ ] Attach events (allows registry connection outside and inside of the network)
+  - [ ] Report events (allows info reporting to registries)
   - [ ] Authenticate peer info to one of the allowed hybrid signatures
+  - [ ] Relay/pipe tier detection based on reports
 - [ ] Path broadcast & selection
   - [ ] Out-of-tunnel latency probing
   - [ ] Out-of-tunnel latency publishing (3 best)
@@ -44,4 +61,6 @@
 - [ ] Product maturity (drop "experimental" tag)
   - [ ] Interactive initial config wizards (`scopectl init`)
   - [ ] Config dry run for validation (`scopectl check`)
+  - [ ] Local state report (`scopectl local`)
+  - [ ] Registry info report (`scopectl info`)
   - [ ] Extensive reliability testing

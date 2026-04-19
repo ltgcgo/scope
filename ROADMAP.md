@@ -5,6 +5,7 @@
   - [ ] Placeholder WebSocket
 - [ ] FVP: Star network (single master relay, all edge leaves)
   - [ ] Connection (master relay)
+  - [ ] In-config kill switch
 - [ ] Hybrid signatures
   - [ ] Ed448
   - [ ] ML-DSA-65
@@ -12,6 +13,7 @@
   - [ ] Join events (edge to master)
   - [ ] Move events (edge to master)
   - [ ] Leave events (edge to master)
+  - [ ] Kill events (emergency kill on the entire network)
   - [ ] Signed public key broadcast (stub)
     - [ ] Versioned key roll-over duration at one hour, with 60 seconds delay for confirmation on exchange completion
     - [ ] Broadcast key exchange progress every 10 seconds until the effective deadline
@@ -31,7 +33,8 @@
     - [ ] Same public key with an existing broadcast entry results in a local reroll
   - [ ] ML-KEM-768 (re-done every time, batched in two phases)
     - [ ] Same public key with an existing broadcast entry results in a local reroll
-    - [ ] Peers with a higher public key are selected as decapsulators
+    - [ ] Peers with a public key higher in apparent value are selected as decapsulators
+    - [ ] Newly-joined peers always encapsulate to batch KEX
   - [ ] BLAKE3 or SHA3-256 (HKDF)
 - [ ] Meshed relays
   - [ ] Connection (relay)
@@ -47,12 +50,13 @@
   - [ ] Out-of-tunnel latency probing
   - [ ] Out-of-tunnel latency publishing (3 best)
   - [ ] Least latency with failover for relays
-    - [ ] Additional mode allowing relayed relays, whenever the combined latency is lower than direct connections
+    - [ ] Additional mode allowing relayed relays, whenever the combined latency is lower than direct connections (5 minutes)
   - [ ] In-tunnel latency probing
-    - [ ] Trigger reconnection when in-tunnel latency is higher than desired, or in-tunnel connectivity is lost
+    - [ ] Trigger reconnection when in-tunnel latency is higher than desired (5 minutes), or in-tunnel connectivity is lost (as soon as possible)
   - [ ] Least latency with failover for edges
-    - [ ] Add total uptime of peers into consideration
+    - [ ] Add total uptime of relay peers into consideration
     - [ ] Reconnection when in-tunnel connectivity is lost
+    - [ ] Connect to other relay peers and pipe peers for certain destinations
 - [ ] Better edge, direct connections preferred
   - [ ] If with no (master) relay, STUN initialization before launch (`nat`: `open`, `deny`, `closed`)
   - [ ] Junk packets to edges behind open NAT (punches open UDP NAT)

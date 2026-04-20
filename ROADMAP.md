@@ -20,7 +20,7 @@
 - [ ] Real-time events
   - [ ] Join events (edge to master)
   - [ ] Move events (edge to master)
-  - [ ] Leave events (edge to master, no peer info removal until expiry after 90 days)
+  - [ ] Leave events (edge to master, no peer info removal until expiry after 30 days)
   - [ ] Kill events (emergency kill on the entire network until Scope reboots on peers, signed)
   - [ ] Signed public key broadcast (stub)
     - [ ] Versioned key roll-over duration at one hour, with 60 seconds delay for confirmation on exchange completion
@@ -44,7 +44,8 @@
     - [ ] Peers with a public key higher in apparent value are selected as decapsulators
     - [ ] Newly-joined peers always encapsulate to batch KEX
   - [ ] BLAKE3 or SHA3-256 (HKDF)
-  - [ ] Last 3 versions of derived keys in peer info cache, each expires after 90 days
+  - [ ] Last 3 versions of derived keys in peer info cache, each expires after 30 days
+    - [ ] If in-tunnel connectivity is lost for more than 15 seconds after a KEX, revert the key to the previously working one
 - [ ] Meshed relays
   - [ ] Connection (relay)
   - [ ] Join events (relay, causes direct connection attempts, punches open UDP NAT)
@@ -73,13 +74,14 @@
   - [ ] WireProxy config generation (may require restarts for peer updates)
 - [ ] Fallback coordination
   - [ ] Event exchanges via WebSocket servers on relays/pipes (bi-directional connection)
+    - [ ] Route ID via peer signature public key hashed through BLAKE3/SHA3-256
     - [ ] Newly-joined peers always act as clients to the event servers of other peers
+    - [ ] Upon loss recovery, EX with a lower route ID connect to EX with a higher route ID
     - [ ] Registry cannot override certain fields if stale, peers will report up-to-date info of themselves to refresh stale info
       - [ ] Current non-PQ public key
       - [ ] Current PQ encapsulation key
   - [ ] Event exchanges
     - [ ] Content of events is always signed with peer's own signature
-    - [ ] Route ID via hashed peer signature public key
     - [ ] If without direct event exchange connection, events are relayed to the connected peer having the least apparent XOR distance with their own route ID (Kademlia?)
     - [ ] Allow KEX through event exchanges (preferred even with registry contact to reduce load)
     - [ ] Peers without registry connection allow other directly connected relays/pipes to broadcast their connection details via a signed proof, expiring after 60 seconds

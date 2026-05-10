@@ -60,7 +60,7 @@ When a peer tries to join the network, it will contact the registry first to fet
 | Observability  | Distributed | Distributed | Central | Central  | None      |
 | Proxy fallback | WireProxy | YggStack  | gVisor    | Unknown    | None      |
 | Peer domain    | mDNS      | No        | MagicDNS  | No         | No        |
-| mDNS           | Yes       | LSD       | No        | Varies     | No        |
+| mDNS           | Yes       | LAN peers | No        | Varies     | No        |
 | SSDP           | DLNA-only | No        | No        | No         | No        |
 
 ## FAQ

@@ -1,4 +1,5 @@
 - [ ] Baseline
+  - [ ] `scopeNetName`: A required network identifier capped at 8 characters, as well as the interface name on Linux
   - [ ] Defined master relays (`master`, one per subnet)
   - [ ] Define overall config structure
   - [ ] Peer config delivery
@@ -60,11 +61,11 @@
   - [ ] Relay/pipe tier detection based on reports
 - [ ] Service discovery
   - [ ] Configurable service discovery identifiers
-    - [ ] `peerName`: Network-unique readable alternative of the peer hash. Truncated to 8 characters
+    - [ ] `peerName`: Network-unique readable alternative of the peer hash, enforced on join. Truncated to 8 characters
     - [ ] `truncatedPeerHash`: 8-character Base-32 (40-bits), established from the BLAKE3 hash of the hybrid signature of the peer, used in service discoveries. Fallback if no `peerName` is present
   - [ ] On-demand peer-accessible resource forwarder
-  - [ ] mDNS (namespace `mdns`, rewrite to `<svcName>-<peerName|truncPeerHash>-<ifName>._<l7>._<l4>.local`)
-    - [ ] If enabled, peer IPs map to `<peerName|truncPeerHash>-<ifname>._scope._ip.local`
+  - [ ] mDNS (namespace `mdns`, rewrite to `<svcName>-<peerName|truncPeerHash>-<scopeNetName>._<l7>._<l4>.local`)
+    - [ ] If enabled, peer IPs map to `<peerName|truncPeerHash>-<scopeNetName>.scope.local`
   - [ ] SRP (non-blocker, further knowledge required before planning)
   - [ ] SSDP (non-blocker, namespace `ssdp`, with support whitelisting)
     - [ ] DLNA

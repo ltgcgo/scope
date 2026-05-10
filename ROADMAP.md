@@ -54,8 +54,19 @@
   - [ ] Tier events (registry marks nodes with tiers)
   - [ ] Attach events (allows registry connection outside and inside of the network)
   - [ ] Report events (allows info reporting to registries)
+  - [ ] Publish events (adds and keeps discovery entries alive under a namespace, has keepalive set to 10 minutes)
+  - [ ] Unpublish events (removes discovery entries under a namespace)
   - [ ] Authenticate peer info to one of the allowed hybrid signatures
   - [ ] Relay/pipe tier detection based on reports
+- [ ] Service discovery
+  - [ ] Configurable service discovery identifiers
+    - [ ] `peerName`: Directly use peers' own identifier, truncated to 8-characters
+    - [ ] `truncatedPeerHash`: 8-character Base-32 (40-bits), established from the BLAKE3 hash of the hybrid signature of the peer, used in service discoveries. Fallback if no `peerName` is present
+  - [ ] On-demand peer-accessible resource forwarder
+  - [ ] mDNS (namespace `mdns`, rewrite to `<svcName>-<peerName|truncPeerHash>-<ifName>._<l7>._<l4>.local`)
+    - [ ] If enabled, peer IPs map to `<peerName|truncPeerHash>-<ifname>._scope._ip.local`
+  - [ ] SSDP (non-blocker, namespace `ssdp`, with support whitelisting)
+    - [ ] DLNA
 - [ ] Path broadcast & selection
   - [ ] Out-of-tunnel latency probing
   - [ ] Out-of-tunnel latency publishing (3 best)
